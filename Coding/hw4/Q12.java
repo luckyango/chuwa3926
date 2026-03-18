@@ -28,10 +28,10 @@ public class Q12 {
         }
     }
     static class StudentAnalyzer{
-        private double avg(Student s){
+        private static double avg(Student s){
             return s.getScores().stream()
             .mapToDouble(Double::doubleValue)
-            .average().orElse(0);
+            .average().orElse(0.0);
         }
         List<String> getTopStudentNames(List<Student> students, int n){
             return students.stream()
@@ -43,29 +43,28 @@ public class Q12 {
         Map<String, Double> getAverageScoreByMajor(List<Student> students){
             return students.stream()
             .collect(Collectors.groupingBy(
-                Student::getMajor,Collectors.averagingDouble(this::avg)));
+                Student::getMajor,Collectors.averagingDouble(StudentAnalyzer::avg)));
         }
         Optional<Student> findStudentWithHighestSingleScore(List<Student> students){
             return students.stream()
             .max(Comparator.comparing(
-                s->s.getScores().stream().max(Double::compare).orElse(0,0)
+                s->s.getScores().stream().max(Double::compare).orElse(0.0)
             ));
         }
         public List<Student> getStudentsAboveAverageInMajor(List<Student> students, String major) {
             double avgMajor = students.stream()
                 .filter(s -> s.getMajor().equals(major))
-                .mapToDouble(this::avg)
-                .average().orElse(0);
+                .mapToDouble(StudentAnalyzer::avg)
+                .average().orElse(0.0);
 
             return students.stream()
-                .filter(s -> s.getMajor().equals(major) && avg(s) > avgMajor)
+                .filter(s -> s.getMajor().equals(major) && Double.compare(avg(s), avgMajor)>0)
                 .collect(Collectors.toList());
         }
 
         public Map<Boolean, List<Student>> partitionByPassFail(List<Student> students, double passingScore) {
-            return students.stream().collect(Collectors.partitioningBy(
-                s -> avg(s) >= passingScore
-            ));
+            return students.stream()
+            .collect(Collectors.partitioningBy(s->avg(s) >= passingScore));
         }
     }
     public static void main(String[] args) {
